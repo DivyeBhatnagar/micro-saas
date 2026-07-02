@@ -80,7 +80,7 @@ export default function DarkVeil({
   speed = 0.5,
   scanlineFrequency = 0,
   warpAmount = 0,
-  resolutionScale = 1
+  resolutionScale = 0.5
 }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function DarkVeil({
     const parent = canvas.parentElement;
 
     const renderer = new Renderer({
-      dpr: Math.min(window.devicePixelRatio, 2),
+      dpr: Math.min(window.devicePixelRatio, 1.25),
       canvas
     });
 
@@ -122,17 +122,25 @@ export default function DarkVeil({
     ro.observe(parent);
     resize();
 
+    const isIntersectingRef = { current: true };
+    const io = new IntersectionObserver(([entry]) => {
+      isIntersectingRef.current = entry.isIntersecting;
+    }, { threshold: 0.01 });
+    io.observe(parent);
+
     const start = performance.now();
     let frame = 0;
 
     const loop = () => {
-      program.uniforms.uTime.value = ((performance.now() - start) / 1000) * speed;
-      program.uniforms.uHueShift.value = hueShift;
-      program.uniforms.uNoise.value = noiseIntensity;
-      program.uniforms.uScan.value = scanlineIntensity;
-      program.uniforms.uScanFreq.value = scanlineFrequency;
-      program.uniforms.uWarp.value = warpAmount;
-      renderer.render({ scene: mesh });
+      if (isIntersectingRef.current) {
+        program.uniforms.uTime.value = ((performance.now() - start) / 1000) * speed;
+        program.uniforms.uHueShift.value = hueShift;
+        program.uniforms.uNoise.value = noiseIntensity;
+        program.uniforms.uScan.value = scanlineIntensity;
+        program.uniforms.uScanFreq.value = scanlineFrequency;
+        program.uniforms.uWarp.value = warpAmount;
+        renderer.render({ scene: mesh });
+      }
       frame = requestAnimationFrame(loop);
     };
 
@@ -141,6 +149,7 @@ export default function DarkVeil({
     return () => {
       cancelAnimationFrame(frame);
       ro.disconnect();
+      io.disconnect();
     };
   }, [hueShift, noiseIntensity, scanlineIntensity, speed, scanlineFrequency, warpAmount, resolutionScale]);
   return <canvas ref={ref} className="darkveil-canvas" />;

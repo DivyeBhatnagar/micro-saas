@@ -62,14 +62,16 @@ const BorderGlow = ({
   fillOpacity = 0.5,
 }) => {
   const cardRef = useRef(null);
+  const rectRef = useRef(null);
 
-  const getCenterOfElement = useCallback((el) => {
-    const { width, height } = el.getBoundingClientRect();
+  const getCenterOfElement = useCallback(() => {
+    if (!rectRef.current) return [0, 0];
+    const { width, height } = rectRef.current;
     return [width / 2, height / 2];
   }, []);
 
-  const getEdgeProximity = useCallback((el, x, y) => {
-    const [cx, cy] = getCenterOfElement(el);
+  const getEdgeProximity = useCallback((x, y) => {
+    const [cx, cy] = getCenterOfElement();
     const dx = x - cx;
     const dy = y - cy;
     let kx = Infinity;
@@ -79,8 +81,8 @@ const BorderGlow = ({
     return Math.min(Math.max(1 / Math.min(kx, ky), 0), 1);
   }, [getCenterOfElement]);
 
-  const getCursorAngle = useCallback((el, x, y) => {
-    const [cx, cy] = getCenterOfElement(el);
+  const getCursorAngle = useCallback((x, y) => {
+    const [cx, cy] = getCenterOfElement();
     const dx = x - cx;
     const dy = y - cy;
     if (dx === 0 && dy === 0) return 0;
@@ -94,16 +96,23 @@ const BorderGlow = ({
     const card = cardRef.current;
     if (!card) return;
 
-    const rect = card.getBoundingClientRect();
+    if (!rectRef.current) {
+      rectRef.current = card.getBoundingClientRect();
+    }
+    const rect = rectRef.current;
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const edge = getEdgeProximity(card, x, y);
-    const angle = getCursorAngle(card, x, y);
+    const edge = getEdgeProximity(x, y);
+    const angle = getCursorAngle(x, y);
 
     card.style.setProperty('--edge-proximity', `${(edge * 100).toFixed(3)}`);
     card.style.setProperty('--cursor-angle', `${angle.toFixed(3)}deg`);
   }, [getEdgeProximity, getCursorAngle]);
+
+  const handlePointerLeave = useCallback(() => {
+    rectRef.current = null;
+  }, []);
 
   useEffect(() => {
     if (!animated || !cardRef.current) return;
@@ -132,6 +141,7 @@ const BorderGlow = ({
     <div
       ref={cardRef}
       onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       className={`border-glow-card ${className}`}
       style={{
         '--card-bg': backgroundColor,

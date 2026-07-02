@@ -179,7 +179,7 @@ export default function ColorBends({
     });
     rendererRef.current = renderer;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.setClearColor(0x000000, transparent ? 0 : 1);
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
@@ -205,6 +205,12 @@ export default function ColorBends({
       window.addEventListener('resize', handleResize);
     }
 
+    const isIntersectingRef = { current: true };
+    const io = new IntersectionObserver(([entry]) => {
+      isIntersectingRef.current = entry.isIntersecting;
+    }, { threshold: 0.01 });
+    io.observe(container);
+
     const loop = () => {
       const dt = clock.getDelta();
       const elapsed = clock.elapsedTime;
@@ -221,7 +227,10 @@ export default function ColorBends({
       const amt = Math.min(1, dt * pointerSmoothRef.current);
       cur.lerp(tgt, amt);
       material.uniforms.uPointer.value.copy(cur);
-      renderer.render(scene, camera);
+
+      if (isIntersectingRef.current) {
+        renderer.render(scene, camera);
+      }
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
@@ -230,6 +239,7 @@ export default function ColorBends({
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       if (resizeObserverRef.current) resizeObserverRef.current.disconnect();
       else window.removeEventListener('resize', handleResize);
+      io.disconnect();
       geometry.dispose();
       material.dispose();
       renderer.dispose();

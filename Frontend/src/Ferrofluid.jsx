@@ -221,9 +221,9 @@ const Ferrofluid = ({
     if (!container) return;
 
     const renderer = new Renderer({
-      dpr: dpr ?? (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1),
+      dpr: dpr ?? (typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 1.25) : 1),
       alpha: true,
-      antialias: true
+      antialias: false
     });
     rendererRef.current = renderer;
     const gl = renderer.gl;
@@ -283,6 +283,12 @@ const Ferrofluid = ({
     const ro = new ResizeObserver(resize);
     ro.observe(container);
 
+    const isIntersectingRef = { current: true };
+    const io = new IntersectionObserver(([entry]) => {
+      isIntersectingRef.current = entry.isIntersecting;
+    }, { threshold: 0.01 });
+    io.observe(container);
+
     const onPointerMove = e => {
       const rect = canvas.getBoundingClientRect();
       const sc = renderer.dpr || 1;
@@ -299,6 +305,7 @@ const Ferrofluid = ({
 
     const loop = t => {
       rafRef.current = requestAnimationFrame(loop);
+      if (!isIntersectingRef.current) return;
       uniforms.iTime.value = t * 0.001;
       if (mouseDampening > 0) {
         if (!lastTimeRef.current) lastTimeRef.current = t;
@@ -328,6 +335,7 @@ const Ferrofluid = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (mouseInteraction) window.removeEventListener('pointermove', onPointerMove);
       ro.disconnect();
+      io.disconnect();
       if (canvas.parentElement === container) {
         container.removeChild(canvas);
       }
