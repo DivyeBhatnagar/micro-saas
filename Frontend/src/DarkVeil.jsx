@@ -115,6 +115,8 @@ export default function DarkVeil({
       const w = parent.clientWidth,
         h = parent.clientHeight;
       renderer.setSize(w * resolutionScale, h * resolutionScale);
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
       program.uniforms.uResolution.value.set(gl.drawingBufferWidth, gl.drawingBufferHeight);
     };
 
