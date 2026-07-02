@@ -103,8 +103,8 @@ Micro-Saas-Repurposing/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Harsh-Vardhan17Singh/Micro-Saas-Repurposing.git
-cd Micro-Saas-Repurposing
+git clone https://github.com/DivyeBhatnagar/micro-saas.git
+cd micro-saas
 ```
 
 ### 2. Backend Setup
