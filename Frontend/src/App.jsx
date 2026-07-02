@@ -699,7 +699,7 @@ function App() {
               warpAmount={0}
             />
             {/* Dark overlay layer to let the purple CPPN veil shine through */}
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(5, 5, 5, 0.45)', zIndex: 1 }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(5, 5, 5, 0.20)', zIndex: 1 }} />
           </div>
 
           <div className="workspace-glow"></div>
