@@ -6,13 +6,6 @@ The visual direction features absolute restraint, minimal typography, luxury gla
 
 ---
 
-## 🌐 Live Demo & Endpoints
-
-- **Frontend**: [micro-saas-repurposing.vercel.app](https://micro-saas-repurposing.vercel.app)
-- **Backend API**: [echostream-backend-4jvf.onrender.com](https://echostream-backend-4jvf.onrender.com)
-
----
-
 ## ✨ Key Features
 
 ### 1. High-End Editorial Typography
